@@ -38,6 +38,6 @@ Checklist berikut adalah rencana pengujian, **bukan** hasil PASS.
 ## Langkah testing yang disarankan
 
 1. Jalankan database, migrasi, backend, frontend.
-2. Jalankan skenario T01–T18 di browser dan/atau API client.
+2. Jalankan `npm test` untuk skenario API otomatis (T01 sampai T17 dan aturan rekening), lalu cek alur UI di browser.
 3. Simpan bukti dan status hasil pada dokumen pengujian yang dibuat dari tabel ini.
 4. Jika melakukan perubahan kode ketika memperbaiki bug, tambahkan entri di `docs/CHANGELOG.md`.

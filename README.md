@@ -35,6 +35,10 @@ Jika port 5432 sudah dipakai PostgreSQL lain, ubah port host pada `docker-compos
 
 Install PostgreSQL, buat database `usahacerdas`, lalu atur koneksi di `backend/.env`. Perintah lainnya sama.
 
+## Pengujian otomatis
+
+`npm test` menjalankan tes integrasi API (`backend/test/api.test.ts`, memakai `node:test`) terhadap database di `backend/.env`. Tes menyalakan server sendiri di port acak, membuat dua akun uji `uji-*@usahacerdas.test`, lalu menghapusnya lagi setelah selesai. Tes mencakup T01 sampai T17 di `docs/TEST_SCENARIOS.md` ditambah aturan kelola rekening. Jangan arahkan ke database produksi.
+
 ## Catatan perubahan dan asisten coding
 
 - **`AGENTS.md`** adalah instruksi proyek untuk AI coding assistant seperti Codex: baca konteks, batasi perubahan, uji, dan **catat setiap revisi ke `docs/CHANGELOG.md`**.

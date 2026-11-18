@@ -55,6 +55,8 @@ model Account {
   business      Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name          String
   openingBalance Decimal     @db.Decimal(18, 2)
+  // Diisi saat rekening diarsipkan. Rekening arsip tidak bisa dipakai transaksi baru, tetapi riwayatnya tetap dihitung.
+  archivedAt    DateTime?
   transactions  Transaction[] @relation("PrimaryAccount")
   transfersOut  Transaction[] @relation("TransferFrom")
   transfersIn   Transaction[] @relation("TransferTo")

@@ -10,11 +10,14 @@ type Props = {
   title: string;
   description: ReactNode;
   confirmLabel?: string;
+  busyLabel?: string;
+  /** false untuk aksi yang bisa dibatalkan (mis. arsip), tombolnya tidak merah. */
+  destructive?: boolean;
   onConfirm: () => Promise<void>;
 };
 
-/** Dialog konfirmasi untuk aksi destruktif (pengganti window.confirm). */
-export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 'Hapus', onConfirm }: Props) {
+/** Dialog konfirmasi (pengganti window.confirm). */
+export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 'Hapus', busyLabel = 'Menghapus...', destructive = true, onConfirm }: Props) {
   const [busy, setBusy] = useState(false);
   return (
     <AlertDialog open={open} onOpenChange={o => !busy && onOpenChange(o)}>
@@ -26,7 +29,7 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>Batal</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
+            variant={destructive ? 'destructive' : 'default'}
             disabled={busy}
             onClick={async e => {
               e.preventDefault();
@@ -34,7 +37,7 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
               try { await onConfirm(); onOpenChange(false); } finally { setBusy(false); }
             }}
           >
-            {busy ? 'Menghapus...' : confirmLabel}
+            {busy ? busyLabel : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

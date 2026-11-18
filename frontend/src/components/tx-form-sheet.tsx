@@ -36,6 +36,11 @@ export function TxFormSheet({ open, onOpenChange, editing, initial, accounts, ca
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (open) { setForm(initial); setError(''); } }, [open, initial]);
 
+  // Rekening arsip disembunyikan, kecuali yang memang sudah dipakai transaksi yang sedang diedit.
+  const usable = useMemo(() => {
+    const keep = new Set([initial.accountId, initial.fromAccountId, initial.toAccountId]);
+    return accounts.filter(a => !a.archivedAt || (editing && keep.has(a.id)));
+  }, [accounts, initial, editing]);
   const eligible = useMemo(() => categories.filter(c => c.type === form.type), [categories, form.type]);
   const set = <K extends keyof TxPayload>(key: K, value: TxPayload[K]) => setForm(f => ({ ...f, [key]: value }));
   const needsCategory = form.type === 'INCOME' || form.type === 'EXPENSE';
@@ -57,7 +62,7 @@ export function TxFormSheet({ open, onOpenChange, editing, initial, accounts, ca
       <Label htmlFor={id}>{label}</Label>
       <Select value={value ?? ''} onValueChange={onChange}>
         <SelectTrigger id={id} className="w-full"><SelectValue placeholder={placeholder} /></SelectTrigger>
-        <SelectContent position="popper">{accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}</SelectContent>
+        <SelectContent position="popper">{usable.map(a => <SelectItem key={a.id} value={a.id}>{a.name}{a.archivedAt ? ' (diarsipkan)' : ''}</SelectItem>)}</SelectContent>
       </Select>
     </div>
   );

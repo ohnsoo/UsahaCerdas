@@ -37,7 +37,7 @@ export default function Transactions() {
     (!search || [t.note, t.category?.name, t.account?.name].some(x => x?.toLowerCase().includes(search.toLowerCase())))
   ), [list, filter, search]);
 
-  const openNew = () => { setEditing(null); setInitial(emptyTx(accounts[0]?.id ?? '')); setSheetOpen(true); };
+  const openNew = () => { setEditing(null); setInitial(emptyTx(accounts.find(a => !a.archivedAt)?.id ?? '')); setSheetOpen(true); };
   const openEdit = (t: Transaction) => {
     setEditing(t.id);
     setInitial({ type: t.type, amount: t.amount, date: t.date, note: t.note, categoryId: t.categoryId, accountId: t.accountId, fromAccountId: t.fromAccountId, toAccountId: t.toAccountId });

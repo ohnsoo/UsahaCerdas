@@ -11,8 +11,9 @@ Base URL development: `http://localhost:4000/api` melalui proxy Vite (`/api`). S
 | GET | `/auth/me` | Data pemilik dan usaha |
 | GET | `/business` | Profil usaha |
 | PATCH | `/business` | Perbarui `name`, `businessType` |
-| GET | `/accounts` | Daftar rekening kas |
+| GET | `/accounts` | Daftar rekening kas, termasuk `archivedAt` dan `hasTransactions` |
 | POST | `/accounts` | Tambah `name`, `openingBalance` |
+| PATCH | `/accounts/:id` | Ubah `name`, `openingBalance`, dan/atau `archived` (boolean). Lihat aturan di bawah |
 | GET | `/categories` | Daftar kategori |
 | POST | `/categories` | Tambah kategori `name` dan `type` |
 | DELETE | `/categories/:id` | Hapus kategori yang belum dipakai |
@@ -47,3 +48,11 @@ Endpoint mengirim JSON. Kegagalan menggunakan status HTTP yang sesuai dan respon
 ```
 
 Semua endpoint yang mengubah data perlu `Content-Type: application/json` (frontend helper melakukannya otomatis).
+
+## Aturan PATCH rekening
+
+- `openingBalance` hanya bisa diubah selama rekening belum dipakai transaksi apa pun (409 jika sudah). Mengirim nilai yang sama tidak dianggap perubahan.
+- `archived: true` ditolak (409) bila saldo rekening sepanjang waktu belum nol, atau bila rekening itu satu-satunya yang masih aktif.
+- Rekening arsip tidak bisa dipakai transaksi baru (400). Transaksi lama yang sudah memakai rekening itu tetap bisa diedit.
+- Rekening arsip tetap dihitung di `/dashboard` dan `/reports`; `accountBalances[]` menyertakan `archived: boolean`.
+- Setiap perubahan dicatat di audit log (`entityType: ACCOUNT`).

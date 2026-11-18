@@ -117,10 +117,11 @@ export default function Dashboard() {
                 <CardDescription>Saldo per {dateLabel(to)}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-1">
-                {summary.accountBalances.map(a => (
+                {/* Rekening arsip bersaldo nol tidak perlu tampil; yang masih bersaldo tetap ditampilkan agar total kas bisa ditelusuri. */}
+                {summary.accountBalances.filter(a => !a.archived || Number(a.balance) !== 0).map(a => (
                   <div key={a.id} className="flex items-center gap-3 rounded-md py-2">
                     <div className="flex size-8 items-center justify-center rounded-md border bg-muted/50"><CreditCard className="size-4 text-muted-foreground" /></div>
-                    <span className="min-w-0 flex-1 truncate text-sm">{a.name}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm">{a.name}{a.archived && <span className="ml-1.5 text-xs text-muted-foreground">(arsip)</span>}</span>
                     <span className={cn('text-sm font-medium tabular', Number(a.balance) < 0 && 'text-expense')}>{money(a.balance)}</span>
                   </div>
                 ))}

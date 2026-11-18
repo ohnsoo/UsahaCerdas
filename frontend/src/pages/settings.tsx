@@ -1,15 +1,94 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { CircleAlert, CreditCard, Loader2, Plus, Save } from 'lucide-react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Archive, ArchiveRestore, CircleAlert, CreditCard, Loader2, MoreHorizontal, Pencil, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { PageHeader } from '@/components/page-header';
 import { api, money, patch, post, type Account } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { cn } from '@/lib/utils';
+
+function AccountRow({ account, children }: { account: Account; children: ReactNode }) {
+  const archived = Boolean(account.archivedAt);
+  return (
+    <div className="flex items-center gap-3 px-3 py-2.5">
+      <div className={cn('flex size-8 shrink-0 items-center justify-center rounded-md border bg-muted/50', archived && 'opacity-60')}>
+        <CreditCard className="size-4 text-muted-foreground" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className={cn('truncate text-sm font-medium', archived && 'text-muted-foreground')}>{account.name}</p>
+        <p className="text-xs text-muted-foreground">Saldo awal <span className="tabular">{money(account.openingBalance)}</span></p>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function EditAccountDialog({ account, onOpenChange, onSaved }: { account: Account | null; onOpenChange: (o: boolean) => void; onSaved: () => Promise<void> }) {
+  const [name, setName] = useState('');
+  const [opening, setOpening] = useState('0');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (account) { setName(account.name); setOpening(String(Number(account.openingBalance))); setError(''); }
+  }, [account]);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!account) return;
+    const body: { name?: string; openingBalance?: string } = {};
+    if (name.trim() !== account.name) body.name = name.trim();
+    if (!account.hasTransactions && Number(opening) !== Number(account.openingBalance)) body.openingBalance = opening;
+    if (!Object.keys(body).length) { onOpenChange(false); return; }
+    setBusy(true); setError('');
+    try { await patch(`/accounts/${account.id}`, body); await onSaved(); toast.success('Rekening diperbarui'); onOpenChange(false); }
+    catch (err) { setError((err as Error).message); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <Dialog open={Boolean(account)} onOpenChange={o => !busy && onOpenChange(o)}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Ubah rekening</DialogTitle>
+          <DialogDescription>Perubahan nama langsung terlihat di seluruh riwayat transaksi.</DialogDescription>
+        </DialogHeader>
+        <form id="edit-account" onSubmit={submit} className="grid gap-4">
+          {error && <Alert variant="destructive"><CircleAlert /><AlertDescription>{error}</AlertDescription></Alert>}
+          <div className="grid gap-2">
+            <Label htmlFor="edit-acc-name">Nama rekening</Label>
+            <Input id="edit-acc-name" value={name} onChange={e => setName(e.target.value)} minLength={2} maxLength={70} required autoFocus />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="edit-acc-opening">Saldo awal (Rp)</Label>
+            <Input id="edit-acc-opening" type="number" inputMode="decimal" step="0.01" min="0" required className="tabular"
+              value={opening} onChange={e => setOpening(e.target.value)} disabled={account?.hasTransactions} />
+            {account?.hasTransactions && (
+              <p className="text-xs text-muted-foreground">
+                Tidak bisa diubah karena rekening ini sudah punya transaksi. Jika saldo awal keliru, catat selisihnya sebagai setoran modal atau prive.
+              </p>
+            )}
+          </div>
+        </form>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Batal</Button>
+          <Button type="submit" form="edit-account" disabled={busy}>
+            {busy && <Loader2 className="animate-spin" data-icon="inline-start" />}Simpan
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function Settings() {
   const { session, refresh } = useAuth();
@@ -21,9 +100,17 @@ export default function Settings() {
   const [profileError, setProfileError] = useState('');
   const [accountError, setAccountError] = useState('');
   const [busy, setBusy] = useState<'profile' | 'account' | null>(null);
+  const [editing, setEditing] = useState<Account | null>(null);
+  // Target dipisah dari status buka agar nama rekening tidak hilang selama animasi dialog menutup.
+  const [toArchive, setToArchive] = useState<Account | null>(null);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [restoring, setRestoring] = useState<string | null>(null);
 
   const reload = async () => setAccounts(await api<Account[]>('/accounts'));
   useEffect(() => { void reload().catch(e => setAccountError(e.message)); }, []);
+
+  const active = accounts?.filter(a => !a.archivedAt) ?? [];
+  const archived = accounts?.filter(a => a.archivedAt) ?? [];
 
   const save = async (e: FormEvent) => {
     e.preventDefault(); setBusy('profile'); setProfileError('');
@@ -38,6 +125,17 @@ export default function Settings() {
       setAccountName(''); setOpeningBalance('0'); await reload(); toast.success('Rekening ditambahkan');
     } catch (err) { setAccountError((err as Error).message); }
     finally { setBusy(null); }
+  };
+  const archive = async () => {
+    if (!toArchive) return;
+    try { await patch(`/accounts/${toArchive.id}`, { archived: true }); await reload(); toast.success(`Rekening "${toArchive.name}" diarsipkan`); }
+    catch (err) { toast.error((err as Error).message); }
+  };
+  const restore = async (a: Account) => {
+    setRestoring(a.id);
+    try { await patch(`/accounts/${a.id}`, { archived: false }); await reload(); toast.success(`Rekening "${a.name}" aktif lagi`); }
+    catch (err) { toast.error((err as Error).message); }
+    finally { setRestoring(null); }
   };
 
   return (
@@ -81,15 +179,38 @@ export default function Settings() {
           <CardContent className="grid gap-4">
             {!accounts ? <Skeleton className="h-24" /> : (
               <div className="divide-y rounded-lg border">
-                {accounts.map(a => (
-                  <div key={a.id} className="flex items-center gap-3 px-3 py-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-md border bg-muted/50"><CreditCard className="size-4 text-muted-foreground" /></div>
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">{a.name}</span>
-                    <span className="text-right text-xs text-muted-foreground">Saldo awal<br /><span className="text-sm text-foreground tabular">{money(a.openingBalance)}</span></span>
-                  </div>
+                {active.map(a => (
+                  <AccountRow key={a.id} account={a}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon-sm" aria-label={`Aksi rekening ${a.name}`}><MoreHorizontal /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => setEditing(a)}><Pencil />Ubah</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => { setToArchive(a); setArchiveOpen(true); }} disabled={active.length <= 1}><Archive />Arsipkan</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </AccountRow>
                 ))}
               </div>
             )}
+
+            {archived.length > 0 && (
+              <div className="grid gap-2">
+                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Diarsipkan ({archived.length})</p>
+                <div className="divide-y rounded-lg border border-dashed">
+                  {archived.map(a => (
+                    <AccountRow key={a.id} account={a}>
+                      <Button variant="ghost" size="sm" onClick={() => restore(a)} disabled={restoring === a.id}>
+                        {restoring === a.id ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <ArchiveRestore data-icon="inline-start" />}Aktifkan
+                      </Button>
+                    </AccountRow>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={add} className="grid gap-4 rounded-lg border border-dashed p-4">
               <p className="text-sm font-medium">Tambah rekening</p>
               {accountError && <Alert variant="destructive"><CircleAlert /><AlertDescription>{accountError}</AlertDescription></Alert>}
@@ -110,6 +231,14 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      <EditAccountDialog account={editing} onOpenChange={o => !o && setEditing(null)} onSaved={reload} />
+      <ConfirmDialog open={archiveOpen} onOpenChange={setArchiveOpen} title="Arsipkan rekening?"
+        destructive={false} confirmLabel="Arsipkan" busyLabel="Mengarsipkan..." onConfirm={archive}
+        description={<>
+          Rekening <b className="text-foreground">{toArchive?.name}</b> tidak akan muncul lagi di form transaksi baru.
+          Riwayat transaksinya tetap ada dan tetap dihitung di laporan. Saldonya harus nol dulu; pindahkan sisa saldo lewat transfer kas.
+        </>} />
     </>
   );
 }

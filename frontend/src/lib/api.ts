@@ -2,19 +2,21 @@ export type TxType = 'INCOME' | 'EXPENSE' | 'CAPITAL' | 'DRAW' | 'TRANSFER';
 export type CategoryType = 'INCOME' | 'EXPENSE';
 export type User = { id: string; name: string; email: string };
 export type Business = { id: string; name: string; businessType: string; currency: string };
-export type Account = { id: string; name: string; openingBalance: string };
+export type Account = { id: string; name: string; openingBalance: string; archivedAt: string | null; hasTransactions: boolean };
+/** Rekening yang ikut dalam data transaksi (tanpa info pemakaian). */
+export type AccountRef = Pick<Account, 'id' | 'name'>;
 export type Category = { id: string; name: string; type: CategoryType };
 export type Transaction = {
   id: string; type: TxType; amount: string; date: string; note: string;
   categoryId: string | null; accountId: string | null; fromAccountId: string | null; toAccountId: string | null;
-  category?: Category | null; account?: Account | null; fromAccount?: Account | null; toAccount?: Account | null;
+  category?: Category | null; account?: AccountRef | null; fromAccount?: AccountRef | null; toAccount?: AccountRef | null;
 };
 export type TxPayload = Pick<Transaction, 'type' | 'amount' | 'date' | 'note' | 'categoryId' | 'accountId' | 'fromAccountId' | 'toAccountId'>;
 export type Summary = {
   period: { from: string; to: string };
   cashBalance: string; income: string; expense: string; operatingSurplus: string;
   capital: string; draws: string; netCashMovement: string;
-  accountBalances: { id: string; name: string; balance: string }[];
+  accountBalances: { id: string; name: string; archived: boolean; balance: string }[];
   chart: { month: string; income: number; expense: number }[];
   recentTransactions: Transaction[];
   expenseCategories: { name: string; amount: string }[];

@@ -115,3 +115,23 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
 - **File:** `docs/CHANGELOG.md`, `.git/hooks/pre-commit` (lokal, tidak ikut repo; dipasang lewat `npm run hooks:install`). Seluruh file project masuk commit pertama di branch `main`.
 - **Pengujian:** Pemindaian file yang di-stage untuk kredensial (URL database berpassword, kunci Supabase, JWT) — **PASS**, tidak ada; `git check-ignore` memastikan `backend/.env` dan `*.tsbuildinfo` diabaikan — **PASS**. Hook changelog dijalankan saat commit.
 - **Catatan:** Belum ada remote; repo baru tersedia lokal. `.mcp.json` ikut ter-commit dan berisi project ref Supabase (bukan rahasia, tapi mengungkap ID project bila repo dibuat publik).
+
+### Tes API otomatis (`npm test`) dan fitur kelola rekening
+- **Tipe:** Fitur + test + refactor kecil.
+- **Alasan:** (1) Skrip uji API hanya ada di folder sementara dan bisa hilang; perubahan berikutnya butuh tes yang bisa diulang. (2) Rekening hanya bisa ditambah; salah nama atau rekening yang tak dipakai lagi tidak bisa ditangani.
+- **Isi:**
+  - `backend/src/server.ts` dipecah: `app.ts` membangun app Express dan mengekspor `app` + `prisma`, `server.ts` hanya `listen`. Perilaku runtime tidak berubah.
+  - Tes integrasi `backend/test/api.test.ts` (node:test + tsx, tanpa dependensi baru): 38 kasus, mencakup T01 sampai T17, Origin 403, Content-Type 415, dan aturan rekening. Server dinyalakan di port acak; akun uji yang dibuat dihapus di akhir.
+  - Skema: kolom `Account.archivedAt` (nullable) lewat migrasi `20261118120000_account_archive` (hanya `ADD COLUMN`, tidak destruktif), sudah diterapkan ke Supabase dengan `prisma migrate deploy`.
+  - API: `PATCH /api/accounts/:id` (ubah nama, saldo awal, arsip/aktifkan), `GET /accounts` menambah `archivedAt` dan `hasTransactions`, transaksi baru menolak rekening arsip, ringkasan menambah `archived` di `accountBalances`, audit log untuk perubahan rekening. Aturan di ADR-005.
+  - UI Pengaturan: menu per rekening (Ubah, Arsipkan), dialog ubah (saldo awal terkunci beserta penjelasannya bila sudah ada transaksi), konfirmasi arsip, bagian "Diarsipkan" dengan tombol Aktifkan. Form transaksi menyembunyikan rekening arsip (kecuali saat mengedit transaksi yang memakainya). Dashboard menyembunyikan rekening arsip bersaldo nol. Komponen shadcn `dialog` ditambahkan; `ConfirmDialog` mendapat opsi `destructive` dan `busyLabel`.
+- **File:** `backend/src/app.ts` (baru, dari `server.ts`), `backend/src/server.ts`, `backend/test/api.test.ts` (baru), `backend/tsconfig.test.json` (baru), `backend/package.json`, `package.json`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261118120000_account_archive/migration.sql` (baru), `frontend/src/lib/api.ts`, `frontend/src/pages/settings.tsx`, `frontend/src/pages/dashboard.tsx`, `frontend/src/pages/transactions.tsx`, `frontend/src/components/tx-form-sheet.tsx`, `frontend/src/components/confirm-dialog.tsx`, `frontend/src/components/ui/dialog.tsx` (baru), `docs/API.md`, `docs/DECISIONS.md`, `docs/TEST_SCENARIOS.md`, `README.md`.
+- **Pengujian:**
+  - `npm test` dijalankan dua kali terhadap Supabase: **38/38 PASS** kedua kalinya; pengecekan langsung ke database memastikan akun uji dari run ini sudah terhapus.
+  - `npm run typecheck` (backend termasuk folder test, dan frontend): **PASS**. `npm run build -w frontend`: **PASS** (peringatan ukuran bundle ±944 kB, belum ditangani).
+  - Browser (akun uji UI): arsip Bank Uji bersaldo Rp800.000 ditolak dengan toast yang menjelaskan; ubah nama Bank Uji ke "Bank BCA" berhasil dan terlihat di riwayat transfer; saldo awal terkunci untuk rekening bertransaksi dan bisa diedit untuk rekening kosong; tambah, arsip, dan aktifkan lagi "Dompet Coba" berhasil; form transaksi hanya menampilkan rekening aktif; dashboard tetap Rp2.935.000 / surplus Rp435.000; tampilan mobile 375 px tanpa scroll horizontal; tidak ada error server. Hasil: **PASS**.
+  - Ditemukan dan diperbaiki saat uji: nama rekening hilang dari dialog arsip selama animasi menutup (status buka dipisah dari target).
+- **Catatan:**
+  - `npm test` menulis ke database yang dikonfigurasi; jangan dijalankan terhadap produksi.
+  - Akun uji lama dari sesi sebelumnya (`uji-a-*`, `uji-b-*` bertimestamp 1794986*, dan `uji-ui-20261118@usahacerdas.test`) masih ada di Supabase; belum dihapus karena perlu persetujuan.
+  - Dashboard memakai `Number(balance) !== 0` hanya untuk menentukan tampil/tidak, bukan untuk perhitungan.

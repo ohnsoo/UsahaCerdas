@@ -21,3 +21,9 @@
 - **Alasan:** Tampilan lama terasa generik. shadcn/ui memberi gaya dashboard SaaS yang konsisten dan aksesibel (Radix), dan komponennya disalin ke `frontend/src/components/ui` sehingga bebas diubah tanpa terkunci ke library.
 - **Struktur:** `src/lib` (API, auth), `src/components` (shell, tabel, dialog), `src/components/ui` (komponen shadcn hasil generator), `src/pages` (satu file per halaman). Alias import `@/` → `src/`.
 - **Konsekuensi:** Komponen di `components/ui` sebaiknya diubah lewat `npx shadcn@latest add <komponen> --overwrite` atau diedit dengan sadar. Ukuran bundle naik (±937 kB, gzip ±277 kB); pertimbangkan code-splitting per halaman.
+
+## ADR-005: Rekening diarsipkan, bukan dihapus (2026-11-18)
+- **Status:** Accepted.
+- **Keputusan:** Rekening tidak bisa dihapus permanen. Pemilik bisa mengubah nama, dan mengarsipkan rekening (`Account.archivedAt`). Rekening arsip disembunyikan dari form transaksi baru, tetapi riwayat dan saldonya tetap masuk laporan.
+- **Aturan:** (1) saldo awal terkunci setelah rekening punya transaksi; koreksi dicatat sebagai setoran modal/prive agar laporan periode lalu tidak bergeser diam-diam; (2) arsip hanya bila saldo sepanjang waktu nol, sehingga total kas tidak "hilang" dari tampilan; (3) minimal satu rekening aktif.
+- **Konsekuensi:** Mengedit transaksi lama pada rekening arsip masih diizinkan dan bisa membuat saldonya tidak nol; dashboard tetap menampilkan rekening arsip yang bersaldo agar total kas bisa ditelusuri.
