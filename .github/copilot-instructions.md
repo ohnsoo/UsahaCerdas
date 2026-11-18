@@ -1,0 +1,1 @@
+Ikuti `AGENTS.md` dan blueprint di `docs/` sebelum menulis kode. Setiap perubahan kode wajib disertai entri aktual di `docs/CHANGELOG.md` (tanggal, alasan, file, validasi, risiko). Jangan klaim tes lulus tanpa menjalankannya. Pertahankan pemisahan keuangan usaha/pribadi dan pembatasan akses `businessId`. Jangan deploy atau merusak data tanpa persetujuan.

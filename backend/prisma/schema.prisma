@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  // Koneksi tanpa pgbouncer untuk `prisma migrate`. Untuk Postgres lokal/Docker, isi sama dengan DATABASE_URL.
+  directUrl = env("DIRECT_URL")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  CAPITAL
+  DRAW
+  TRANSFER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  businesses   Business[]
+  transactions Transaction[] @relation("TransactionCreator")
+  auditLogs    AuditLog[]
+  createdAt    DateTime   @default(now())
+}
+
+model Business {
+  id           String        @id @default(cuid())
+  ownerId      String
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name         String
+  businessType String        @default("Umum")
+  currency     String        @default("IDR")
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  auditLogs    AuditLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  @@index([ownerId])
+}
+
+model Account {
+  id            String        @id @default(cuid())
+  businessId    String
+  business      Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name          String
+  openingBalance Decimal     @db.Decimal(18, 2)
+  transactions  Transaction[] @relation("PrimaryAccount")
+  transfersOut  Transaction[] @relation("TransferFrom")
+  transfersIn   Transaction[] @relation("TransferTo")
+  createdAt     DateTime      @default(now())
+  @@unique([businessId, name])
+}
+
+model Category {
+  id           String         @id @default(cuid())
+  businessId   String
+  business     Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  type         CategoryType
+  transactions Transaction[]
+  @@unique([businessId, name, type])
+}
+
+model Transaction {
+  id             String          @id @default(cuid())
+  businessId     String
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdById    String
+  createdBy      User            @relation("TransactionCreator", fields: [createdById], references: [id])
+  type           TransactionType
+  amount         Decimal         @db.Decimal(18, 2)
+  date           DateTime        @db.Date
+  note           String          @default("")
+  categoryId     String?
+  category       Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  accountId      String?
+  account        Account?        @relation("PrimaryAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  fromAccountId  String?
+  fromAccount    Account?        @relation("TransferFrom", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  toAccountId    String?
+  toAccount      Account?        @relation("TransferTo", fields: [toAccountId], references: [id], onDelete: Restrict)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  @@index([businessId, date])
+  @@index([businessId, type])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  summary    String
+  createdAt  DateTime @default(now())
+  @@index([businessId, createdAt])
+}
