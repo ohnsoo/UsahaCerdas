@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react';
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AppShell } from '@/components/app-shell';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { LiveProvider } from '@/lib/live';
 import AuthPage from '@/pages/auth';
 import Categories from '@/pages/categories';
 import Dashboard from '@/pages/dashboard';
@@ -20,11 +20,12 @@ function FullScreenLoader() {
   );
 }
 
-function RequireAuth({ children }: { children: ReactNode }) {
+/** Layout route: satu AppShell dan satu koneksi realtime untuk semua halaman /app. */
+function RequireAuth() {
   const { session, loading } = useAuth();
   if (loading) return <FullScreenLoader />;
   if (!session) return <Navigate to="/login" replace />;
-  return <AppShell>{children}</AppShell>;
+  return <LiveProvider><AppShell><Outlet /></AppShell></LiveProvider>;
 }
 
 function NotFound() {
@@ -44,11 +45,13 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage register />} />
-        <Route path="/app" element={<RequireAuth><Dashboard /></RequireAuth>} />
-        <Route path="/app/transactions" element={<RequireAuth><Transactions /></RequireAuth>} />
-        <Route path="/app/categories" element={<RequireAuth><Categories /></RequireAuth>} />
-        <Route path="/app/reports" element={<RequireAuth><Reports /></RequireAuth>} />
-        <Route path="/app/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+        <Route path="/app" element={<RequireAuth />}>
+          <Route index element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>

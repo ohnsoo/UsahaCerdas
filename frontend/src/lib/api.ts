@@ -37,12 +37,15 @@ export const compactMoney = (v: number) => {
 /** Transaksi yang mengurangi kas akun utamanya. Transfer ditampilkan netral. */
 export const isOutflow = (type: TxType) => type === 'EXPENSE' || type === 'DRAW';
 
+/** ID unik per tab. Dikirim sebagai X-Client-Id agar backend tidak memantulkan event ke tab pengirim. */
+export const CLIENT_ID = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g, '');
+
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`/api${path}`, {
       ...init, credentials: 'include',
-      headers: { ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...init.headers }
+      headers: { 'X-Client-Id': CLIENT_ID, ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...init.headers }
     });
   } catch {
     throw new Error('Gagal terhubung ke backend. Pastikan server sedang berjalan.');

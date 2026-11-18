@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
+import { useLiveTick } from '@/lib/live';
 import { api, post, type Category, type CategoryType } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +29,8 @@ export default function Categories() {
   const [toDelete, setToDelete] = useState<Category | null>(null);
 
   const reload = async () => setList(await api<Category[]>('/categories'));
-  useEffect(() => { void reload().catch(e => setError(e.message)); }, []);
+  const live = useLiveTick(['categories']);
+  useEffect(() => { void reload().catch(e => setError(e.message)); }, [live]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault(); setBusy(true); setError('');

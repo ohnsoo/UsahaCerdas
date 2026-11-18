@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Archive, ArchiveRestore, CircleAlert, CreditCard, Loader2, MoreHorizontal, Pencil, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,6 +15,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { PageHeader } from '@/components/page-header';
 import { api, money, patch, post, type Account } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { useLiveTick } from '@/lib/live';
 import { cn } from '@/lib/utils';
 
 function AccountRow({ account, children }: { account: Account; children: ReactNode }) {
@@ -107,7 +108,18 @@ export default function Settings() {
   const [restoring, setRestoring] = useState<string | null>(null);
 
   const reload = async () => setAccounts(await api<Account[]>('/accounts'));
-  useEffect(() => { void reload().catch(e => setAccountError(e.message)); }, []);
+  const live = useLiveTick(['accounts']);
+  useEffect(() => { void reload().catch(e => setAccountError(e.message)); }, [live]);
+
+  // Profil diubah dari perangkat lain: perbarui form, kecuali pengguna sedang mengetik perubahan sendiri.
+  const synced = useRef({ name, businessType });
+  useEffect(() => {
+    const b = session?.business;
+    if (!b) return;
+    const dirty = name !== synced.current.name || businessType !== synced.current.businessType;
+    synced.current = { name: b.name, businessType: b.businessType };
+    if (!dirty) { setName(b.name); setBusinessType(b.businessType); }
+  }, [session?.business.name, session?.business.businessType]);
 
   const active = accounts?.filter(a => !a.archivedAt) ?? [];
   const archived = accounts?.filter(a => a.archivedAt) ?? [];

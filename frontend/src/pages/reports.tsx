@@ -7,6 +7,7 @@ import { DateRange } from '@/components/date-range';
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { SummarySkeleton } from '@/pages/dashboard';
+import { useLiveTick } from '@/lib/live';
 import { api, dateLabel, localDate, money, startOfMonth, type Summary } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ export default function Reports() {
   const [to, setTo] = useState(localDate());
   const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState('');
+  const live = useLiveTick(['transactions', 'accounts', 'categories']);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +34,7 @@ export default function Reports() {
       .then(x => { if (!cancelled) { setSummary(x); setError(''); } })
       .catch(e => { if (!cancelled) setError(e.message); });
     return () => { cancelled = true; };
-  }, [from, to]);
+  }, [from, to, live]);
 
   const totalExpense = Number(summary?.expense ?? 0);
   return (

@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Prisma, PrismaClient, type TransactionType } from '@prisma/client';
 import { z, ZodError } from 'zod';
+import { clientIdOf, notify, openStream, type LiveTopic } from './live.js';
 
 export const app = express();
 export const prisma = new PrismaClient();
@@ -57,6 +58,9 @@ async function getBusiness(res: Response) {
   if (!business) throw Object.assign(new Error('Usaha tidak ditemukan.'), { status: 404 });
   return business;
 }
+/** Kabari perangkat lain milik usaha yang sama; tab pengirim (header X-Client-Id) dilewati. */
+const broadcast = (req: Request, businessId: string, topic: LiveTopic) => notify(businessId, topic, clientIdOf(req.get('x-client-id')));
+
 const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Tanggal harus YYYY-MM-DD').refine(v =>
   !Number.isNaN(Date.parse(v)) && new Date(v + 'T00:00:00.000Z').toISOString().slice(0, 10) === v, 'Tanggal tidak valid');
 const AMOUNT_RE = /^\d{1,12}(\.\d{1,2})?$/;
@@ -129,12 +133,20 @@ app.get('/api/auth/me', auth, asyncRoute(async (_req, res) => {
   res.json({ user, business });
 }));
 
+// Realtime: stream perubahan untuk usaha milik sesi ini.
+app.get('/api/events', auth, asyncRoute(async (req, res) => {
+  const business = await getBusiness(res);
+  openStream(req, res, business.id);
+}));
+
 // Business
 app.get('/api/business', auth, asyncRoute(async (_req, res) => { res.json(await getBusiness(res)); }));
 app.patch('/api/business', auth, asyncRoute(async (req, res) => {
   const data = z.object({ name: z.string().trim().min(2).max(100), businessType: z.string().trim().min(2).max(100) }).parse(req.body);
   const business = await getBusiness(res);
-  res.json(await prisma.business.update({ where: { id: business.id }, data }));
+  const updated = await prisma.business.update({ where: { id: business.id }, data });
+  broadcast(req, business.id, 'business');
+  res.json(updated);
 }));
 
 // Accounts
@@ -170,6 +182,7 @@ app.post('/api/accounts', auth, asyncRoute(async (req, res) => {
   const data = z.object({ name: accountName, openingBalance: openingAmount.default('0') }).parse(req.body);
   const business = await getBusiness(res);
   const account = await prisma.account.create({ data: { ...data, businessId: business.id }, include: accountUsage });
+  broadcast(req, business.id, 'accounts');
   res.status(201).json(serializeAccount(account));
 }));
 app.patch('/api/accounts/:id', auth, asyncRoute(async (req, res) => {
@@ -215,6 +228,7 @@ app.patch('/api/accounts/:id', auth, asyncRoute(async (req, res) => {
     }
     return updated;
   });
+  broadcast(req, business.id, 'accounts');
   res.json(serializeAccount(account));
 }));
 
@@ -226,13 +240,16 @@ app.get('/api/categories', auth, asyncRoute(async (_req, res) => {
 app.post('/api/categories', auth, asyncRoute(async (req, res) => {
   const data = z.object({ name: z.string().trim().min(2).max(70), type: z.enum(['INCOME','EXPENSE']) }).parse(req.body);
   const business = await getBusiness(res);
-  res.status(201).json(await prisma.category.create({ data: { ...data, businessId: business.id } }));
+  const category = await prisma.category.create({ data: { ...data, businessId: business.id } });
+  broadcast(req, business.id, 'categories');
+  res.status(201).json(category);
 }));
 app.delete('/api/categories/:id', auth, asyncRoute(async (req, res) => {
   const business = await getBusiness(res);
   const existing = await prisma.category.findFirst({ where: { id: req.params.id, businessId: business.id } });
   if (!existing) { res.status(404).json({ error: 'Kategori tidak ditemukan.' }); return; }
   await prisma.category.delete({ where: { id: existing.id } });
+  broadcast(req, business.id, 'categories');
   res.status(204).send();
 }));
 
@@ -283,6 +300,7 @@ app.post('/api/transactions', auth, asyncRoute(async (req, res) => {
   const data = await checkedTransaction(transactionPayload.parse(req.body), business.id);
   const record = await prisma.transaction.create({ data: { ...data, businessId: business.id, createdById: res.locals.userId as string } });
   await prisma.auditLog.create({ data: { businessId: business.id, userId: res.locals.userId as string, action: 'CREATE', entityType: 'TRANSACTION', entityId: record.id, summary: `${record.type} ${record.amount}` } });
+  broadcast(req, business.id, 'transactions');
   res.status(201).json(serialize(record));
 }));
 app.put('/api/transactions/:id', auth, asyncRoute(async (req, res) => {
@@ -296,6 +314,7 @@ app.put('/api/transactions/:id', auth, asyncRoute(async (req, res) => {
     await tx.auditLog.create({ data: { businessId: business.id, userId: res.locals.userId as string, action: 'UPDATE', entityType: 'TRANSACTION', entityId: existing.id, summary: `${existing.type} ${existing.amount} → ${updated.type} ${updated.amount}` } });
     return updated;
   });
+  broadcast(req, business.id, 'transactions');
   res.json(serialize(record));
 }));
 app.delete('/api/transactions/:id', auth, asyncRoute(async (req, res) => {
@@ -306,6 +325,7 @@ app.delete('/api/transactions/:id', auth, asyncRoute(async (req, res) => {
     await tx.transaction.delete({ where: { id: existing.id } });
     await tx.auditLog.create({ data: { businessId: business.id, userId: res.locals.userId as string, action: 'DELETE', entityType: 'TRANSACTION', entityId: existing.id, summary: `${existing.type} ${existing.amount}` } });
   });
+  broadcast(req, business.id, 'transactions');
   res.status(204).send();
 }));
 

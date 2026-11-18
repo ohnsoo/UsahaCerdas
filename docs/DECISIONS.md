@@ -27,3 +27,10 @@
 - **Keputusan:** Rekening tidak bisa dihapus permanen. Pemilik bisa mengubah nama, dan mengarsipkan rekening (`Account.archivedAt`). Rekening arsip disembunyikan dari form transaksi baru, tetapi riwayat dan saldonya tetap masuk laporan.
 - **Aturan:** (1) saldo awal terkunci setelah rekening punya transaksi; koreksi dicatat sebagai setoran modal/prive agar laporan periode lalu tidak bergeser diam-diam; (2) arsip hanya bila saldo sepanjang waktu nol, sehingga total kas tidak "hilang" dari tampilan; (3) minimal satu rekening aktif.
 - **Konsekuensi:** Mengedit transaksi lama pada rekening arsip masih diizinkan dan bisa membuat saldonya tidak nol; dashboard tetap menampilkan rekening arsip yang bersaldo agar total kas bisa ditelusuri.
+
+## ADR-006: Realtime tampilan memakai Server-Sent Events dari backend (2026-11-19)
+- **Status:** Accepted.
+- **Keputusan:** Sinkronisasi antar perangkat/tab memakai SSE di Express (`GET /api/events`, `backend/src/live.ts`). Backend hanya mengirim topik yang berubah; frontend (`frontend/src/lib/live.tsx`) memuat ulang data lewat API biasa.
+- **Alasan:** Supabase Realtime tidak dipakai karena autentikasi memakai JWT sendiri, bukan Supabase Auth, sehingga RLS tidak bisa membatasi data per pemilik; membuka tabel lewat anon key berisiko membocorkan data usaha lain. SSE cukup untuk arah server ke klien, tanpa dependensi baru, dan lewat cookie sesi yang sama.
+- **Batasan:** Daftar koneksi disimpan di memori proses, jadi hanya berlaku untuk satu instance backend. Bila backend di-scale ke beberapa instance, perlu pub/sub bersama (mis. Postgres LISTEN/NOTIFY atau Redis). Reverse proxy di production harus tidak mem-buffer respons `text/event-stream`.
+- **Bukan:** Integrasi bank/QRIS otomatis. Transaksi tetap dicatat manual; yang realtime hanya tampilannya.

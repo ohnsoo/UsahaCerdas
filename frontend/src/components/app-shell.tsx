@@ -11,6 +11,7 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/lib/auth';
+import { useLiveStatus, type LiveStatus } from '@/lib/live';
 import { cn } from '@/lib/utils';
 
 const nav = [
@@ -20,6 +21,24 @@ const nav = [
   { to: '/app/reports', label: 'Laporan', icon: ChartColumnIncreasing },
   { to: '/app/settings', label: 'Pengaturan', icon: Settings2 },
 ];
+
+const liveLabel: Record<LiveStatus, { text: string; dot: string; title: string }> = {
+  live: { text: 'Tersinkron', dot: 'bg-income', title: 'Perubahan dari perangkat lain langsung tampil.' },
+  connecting: { text: 'Menyambung...', dot: 'bg-capital animate-pulse', title: 'Menyambung ulang ke server.' },
+  offline: { text: 'Offline', dot: 'bg-muted-foreground', title: 'Tidak terhubung ke server. Data akan dimuat ulang saat tersambung lagi.' },
+};
+
+function LiveIndicator() {
+  const status = useLiveStatus();
+  const { text, dot, title } = liveLabel[status];
+  return (
+    <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground" title={title} role="status" aria-live="polite">
+      <span className={cn('size-2 rounded-full', dot)} aria-hidden="true" />
+      <span className="hidden sm:inline">{text}</span>
+      <span className="sr-only sm:hidden">{text}</span>
+    </span>
+  );
+}
 
 function initials(name = '') {
   return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join('') || '?';
@@ -114,6 +133,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="hidden text-muted-foreground sm:inline">/</span>
               <span className="truncate font-medium">{current?.label ?? 'Dashboard'}</span>
             </nav>
+            <LiveIndicator />
           </header>
           <main className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">{children}</main>
         </div>

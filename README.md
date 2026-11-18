@@ -35,6 +35,10 @@ Jika port 5432 sudah dipakai PostgreSQL lain, ubah port host pada `docker-compos
 
 Install PostgreSQL, buat database `usahacerdas`, lalu atur koneksi di `backend/.env`. Perintah lainnya sama.
 
+## Realtime antar perangkat
+
+Perubahan transaksi, rekening, kategori, dan profil usaha langsung tampil di tab atau perangkat lain yang login ke usaha yang sama, tanpa refresh. Mekanismenya Server-Sent Events dari backend (`/api/events`); indikator "Tersinkron" ada di kanan atas. Detail di ADR-006 dan `docs/API.md`.
+
 ## Pengujian otomatis
 
 `npm test` menjalankan tes integrasi API (`backend/test/api.test.ts`, memakai `node:test`) terhadap database di `backend/.env`. Tes menyalakan server sendiri di port acak, membuat dua akun uji `uji-*@usahacerdas.test`, lalu menghapusnya lagi setelah selesai. Tes mencakup T01 sampai T17 di `docs/TEST_SCENARIOS.md` ditambah aturan kelola rekening. Jangan arahkan ke database produksi.

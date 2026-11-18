@@ -9,6 +9,7 @@ Base URL development: `http://localhost:4000/api` melalui proxy Vite (`/api`). S
 | POST | `/auth/login` | Login email/password |
 | POST | `/auth/logout` | Hapus cookie sesi |
 | GET | `/auth/me` | Data pemilik dan usaha |
+| GET | `/events?clientId=...` | Stream Server-Sent Events untuk sinkronisasi tampilan (lihat di bawah) |
 | GET | `/business` | Profil usaha |
 | PATCH | `/business` | Perbarui `name`, `businessType` |
 | GET | `/accounts` | Daftar rekening kas, termasuk `archivedAt` dan `hasTransactions` |
@@ -56,3 +57,10 @@ Semua endpoint yang mengubah data perlu `Content-Type: application/json` (fronte
 - Rekening arsip tidak bisa dipakai transaksi baru (400). Transaksi lama yang sudah memakai rekening itu tetap bisa diedit.
 - Rekening arsip tetap dihitung di `/dashboard` dan `/reports`; `accountBalances[]` menyertakan `archived: boolean`.
 - Setiap perubahan dicatat di audit log (`entityType: ACCOUNT`).
+
+## Realtime (Server-Sent Events)
+
+- `GET /api/events` (butuh sesi) membuka stream `text/event-stream`. Event pertama `ready`; setiap perubahan data milik usaha yang sama dikirim sebagai `event: change` dengan `data: {"topic": "transactions" | "accounts" | "categories" | "business"}`. Komentar `: ping` dikirim tiap 25 detik.
+- Event tidak berisi data, hanya topik. Klien memuat ulang lewat endpoint biasa, sehingga pembatasan per `businessId` tetap di satu tempat.
+- Header `X-Client-Id` pada request perubahan (dan `?clientId=` yang sama di stream) membuat tab pengirim tidak menerima event miliknya sendiri. Format: 8 sampai 64 karakter `[A-Za-z0-9_-]`.
+- Event yang terlewat saat koneksi putus tidak dikirim ulang; frontend memuat ulang semua halaman ketika `ready` diterima lagi.

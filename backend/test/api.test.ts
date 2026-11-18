@@ -14,10 +14,10 @@ const createdEmails: string[] = [];
 type Res = { status: number; data: any };
 function client(extraHeaders: Record<string, string> = {}) {
   let cookie = '';
-  return async (method: string, path: string, body?: unknown): Promise<Res> => {
+  const call = async (method: string, path: string, body?: unknown, headers: Record<string, string> = {}): Promise<Res> => {
     const res = await fetch(BASE + path, {
       method,
-      headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(cookie ? { Cookie: cookie } : {}), ...extraHeaders },
+      headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(cookie ? { Cookie: cookie } : {}), ...extraHeaders, ...headers },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     const set = res.headers.get('set-cookie');
@@ -25,6 +25,48 @@ function client(extraHeaders: Record<string, string> = {}) {
     const data = res.status === 204 ? null : await res.json().catch(() => null);
     return { status: res.status, data };
   };
+  return Object.assign(call, { cookie: () => cookie });
+}
+
+/** Buka stream SSE /api/events dan kumpulkan topik event `change` yang diterima. */
+async function openEvents(cookie: string, clientId?: string) {
+  const ac = new AbortController();
+  const res = await fetch(`${BASE}/events${clientId ? `?clientId=${clientId}` : ''}`, { headers: cookie ? { Cookie: cookie } : {}, signal: ac.signal });
+  const topics: string[] = [];
+  let markReady = () => {};
+  const ready = new Promise<void>(r => { markReady = r; });
+  if (res.ok && res.body) {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    void (async () => {
+      try {
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          let i: number;
+          while ((i = buf.indexOf('\n\n')) >= 0) {
+            const block = buf.slice(0, i);
+            buf = buf.slice(i + 2);
+            const event = /^event: (.*)$/m.exec(block)?.[1];
+            const data = /^data: (.*)$/m.exec(block)?.[1];
+            if (event === 'ready') markReady();
+            if (event === 'change' && data) topics.push(JSON.parse(data).topic);
+          }
+        }
+      } catch { /* dibatalkan lewat close() */ }
+    })();
+  }
+  openStreams.push(ac);
+  return { status: res.status, contentType: res.headers.get('content-type'), topics, ready, close: () => ac.abort() };
+}
+const openStreams: AbortController[] = [];
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+async function waitFor(check: () => boolean, ms = 5000) {
+  const until = Date.now() + ms;
+  while (!check()) { if (Date.now() > until) return false; await sleep(25); }
+  return true;
 }
 
 before(async () => {
@@ -40,6 +82,8 @@ after(async () => {
   await prisma.business.deleteMany({ where: { ownerId: { in: ids } } });
   await prisma.user.deleteMany({ where: { id: { in: ids } } });
   await prisma.$disconnect();
+  openStreams.forEach(ac => ac.abort());
+  server.closeAllConnections();
   await new Promise(r => server.close(r));
 });
 
@@ -227,6 +271,37 @@ describe('kelola rekening', () => {
   test('perubahan rekening tercatat di audit log', async () => {
     const logs = await prisma.auditLog.findMany({ where: { entityType: 'ACCOUNT', entityId: bank.id }, orderBy: { createdAt: 'asc' } });
     assert.deepEqual(logs.map(l => l.summary), ['nama "Bank Uji" -> "Bank Uji Baru"', 'diarsipkan', 'diaktifkan lagi']);
+  });
+});
+
+describe('realtime (SSE)', () => {
+  test('stream tanpa login 401', async () => {
+    const s = await openEvents('');
+    assert.equal(s.status, 401);
+  });
+  test('perubahan sampai ke perangkat lain di usaha yang sama, tidak ke usaha lain', async () => {
+    const a = await openEvents(A.cookie());
+    const b = await openEvents(B.cookie());
+    assert.equal(a.status, 200);
+    assert.match(a.contentType ?? '', /text\/event-stream/);
+    await Promise.all([a.ready, b.ready]);
+    assert.equal((await tx('CAPITAL', '1000', { accountId: kas.id })).status, 201);
+    assert.ok(await waitFor(() => a.topics.includes('transactions')), 'stream A menerima event transactions');
+    await A('PATCH', `/accounts/${bank.id}`, { name: 'Bank Uji Live' });
+    assert.ok(await waitFor(() => a.topics.includes('accounts')), 'stream A menerima event accounts');
+    await sleep(300);
+    assert.deepEqual(b.topics, [], 'usaha B tidak menerima event usaha A');
+    a.close(); b.close();
+  });
+  test('tab pengirim (X-Client-Id sama) tidak menerima event miliknya sendiri', async () => {
+    const self = await openEvents(A.cookie(), 'tab-pengirim-01');
+    const other = await openEvents(A.cookie(), 'tab-lainnya-002');
+    await Promise.all([self.ready, other.ready]);
+    await A('POST', '/categories', { name: 'Kategori Live', type: 'EXPENSE' }, { 'X-Client-Id': 'tab-pengirim-01' });
+    assert.ok(await waitFor(() => other.topics.includes('categories')), 'tab lain menerima event');
+    await sleep(300);
+    assert.deepEqual(self.topics, [], 'tab pengirim dilewati');
+    self.close(); other.close();
   });
 });
 

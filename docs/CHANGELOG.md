@@ -159,3 +159,22 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
 - **File:** `AGENTS.md`, `docs/CHANGELOG.md`.
 - **Pengujian:** `npm audit` sebelum/sesudah (tetap 16 temuan, sesuai analisis); grep `backend/src` untuk skema koleksi zod (tidak ada). Setelah `npm ci`: `npm run typecheck` **PASS**, `npm test` **38/38 PASS**.
 - **Catatan:** Tindak lanjut opsional: migrasi ke zod 4 dan Prisma 7 sebagai pekerjaan terpisah; pantau rilis tambalan `picomatch`.
+
+### Realtime tampilan antar perangkat lewat Server-Sent Events
+- **Tipe:** Fitur.
+- **Alasan:** Data yang dicatat di satu perangkat atau tab baru terlihat di perangkat lain setelah refresh manual.
+- **Isi:**
+  - Backend: modul `backend/src/live.ts` (daftar koneksi SSE per `businessId`, heartbeat 25 detik, lewati tab pengirim berdasarkan `X-Client-Id`), endpoint `GET /api/events`, dan notifikasi setelah setiap perubahan transaksi, rekening, kategori, serta profil usaha. Event hanya berisi topik, bukan data.
+  - Frontend: `frontend/src/lib/live.tsx` (`LiveProvider`, `useLiveTick`, `useLiveStatus`) dengan satu koneksi per tab, debounce 250 ms, sambung ulang otomatis, dan muat ulang semua halaman setelah tersambung lagi. Semua request membawa `X-Client-Id`. Dashboard, Transaksi, Kategori, Laporan, dan Pengaturan memuat ulang sendiri; perubahan profil usaha memperbarui sidebar dan form Pengaturan (kecuali form sedang diubah).
+  - Rute `/app/*` diubah menjadi layout route (`RequireAuth` + `<Outlet />`) agar shell dan koneksi realtime tidak dibuat ulang setiap pindah halaman.
+  - Indikator status "Tersinkron / Menyambung... / Offline" di header.
+  - Keputusan dan batasan (satu instance backend) dicatat di ADR-006.
+- **File:** `backend/src/live.ts` (baru), `backend/src/app.ts`, `backend/test/api.test.ts`, `frontend/src/lib/live.tsx` (baru), `frontend/src/lib/api.ts`, `frontend/src/App.tsx`, `frontend/src/components/app-shell.tsx`, `frontend/src/pages/dashboard.tsx`, `frontend/src/pages/transactions.tsx`, `frontend/src/pages/categories.tsx`, `frontend/src/pages/reports.tsx`, `frontend/src/pages/settings.tsx`, `docs/API.md`, `docs/DECISIONS.md`, `README.md`.
+- **Pengujian:**
+  - `npm test`: **41/41 PASS** (3 tes baru: stream tanpa login 401; event sampai ke stream usaha yang sama dan tidak ke usaha lain; tab dengan `X-Client-Id` pengirim dilewati).
+  - `npm run typecheck` dan `npm run build -w frontend`: **PASS**.
+  - Browser, dua tab dengan akun uji `uji-live-20261119@usahacerdas.test`: transaksi Rp250.000 dari tab Transaksi langsung tampil di kartu dan tabel dashboard tab lain tanpa reload (penanda `window` tetap ada); tab pengirim hanya memuat ulang sekali (tidak ada muatan ganda dari event); perubahan nama usaha langsung tampil di sidebar tab lain; indikator menampilkan "Tersinkron". **PASS**. Akun uji dihapus lagi setelahnya.
+  - Belum diuji: perilaku sambung ulang saat backend dimatikan lalu dinyalakan (server berjalan di terminal pengguna, tidak saya hentikan), dan lewat reverse proxy production.
+- **Catatan:**
+  - Hanya untuk satu instance backend (ADR-006).
+  - Di tab browser lama terlihat beberapa respons 500 dan error WebSocket HMR Vite sebelum pengujian ini; asalnya tidak bisa dipastikan karena log server pengguna tidak terbaca. Dugaan: saat `npm ci` sebelum Prisma client di-generate ulang. Tidak muncul selama pengujian.

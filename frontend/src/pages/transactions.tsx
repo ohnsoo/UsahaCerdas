@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { TxFormSheet, emptyTx } from '@/components/tx-form-sheet';
 import { TxTable } from '@/components/tx-table';
+import { useLiveTick } from '@/lib/live';
 import { api, labels, money, post, put, type Account, type Category, type Transaction, type TxPayload, type TxType } from '@/lib/api';
 
 export default function Transactions() {
@@ -30,7 +31,8 @@ export default function Transactions() {
     const [tx, ac, cat] = await Promise.all([api<Transaction[]>('/transactions'), api<Account[]>('/accounts'), api<Category[]>('/categories')]);
     setList(tx); setAccounts(ac); setCategories(cat);
   };
-  useEffect(() => { void reload().catch(e => setError(e.message)); }, []);
+  const live = useLiveTick(['transactions', 'accounts', 'categories']);
+  useEffect(() => { void reload().catch(e => setError(e.message)); }, [live]);
 
   const displayed = useMemo(() => (list ?? []).filter(t =>
     (filter === 'ALL' || t.type === filter) &&

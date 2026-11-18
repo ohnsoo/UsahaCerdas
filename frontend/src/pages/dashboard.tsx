@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/page-header';
 import { TxTable } from '@/components/tx-table';
 import { api, compactMoney, dateLabel, localDate, money, startOfMonth, type Summary } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { useLiveTick } from '@/lib/live';
 import { cn } from '@/lib/utils';
 
 const monthName = (ym: string) => new Intl.DateTimeFormat('id-ID', { month: 'short', timeZone: 'UTC' }).format(new Date(ym + '-01T00:00:00Z'));
@@ -44,6 +45,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [from, setFrom] = useState(startOfMonth());
   const [to, setTo] = useState(localDate());
+  const live = useLiveTick(['transactions', 'accounts', 'categories']);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +53,7 @@ export default function Dashboard() {
       .then(d => { if (!cancelled) { setSummary(d); setError(''); } })
       .catch(e => { if (!cancelled) setError(e.message); });
     return () => { cancelled = true; };
-  }, [from, to]);
+  }, [from, to, live]);
 
   const surplus = Number(summary?.operatingSurplus ?? 0);
   return (
