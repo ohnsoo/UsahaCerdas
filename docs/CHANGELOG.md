@@ -135,3 +135,11 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
   - `npm test` menulis ke database yang dikonfigurasi; jangan dijalankan terhadap produksi.
   - Akun uji lama dari sesi sebelumnya (`uji-a-*`, `uji-b-*` bertimestamp 1794986*, dan `uji-ui-20261118@usahacerdas.test`) masih ada di Supabase; belum dihapus karena perlu persetujuan.
   - Dashboard memakai `Number(balance) !== 0` hanya untuk menentukan tampil/tidak, bukan untuk perhitungan.
+
+### Pembersihan akun uji di database Supabase
+- **Tipe:** Data (tanpa perubahan kode).
+- **Alasan:** Tujuh akun uji dari sesi pengujian sebelumnya (`uji-a-*`, `uji-b-*` bertimestamp 1794986*, dan `uji-ui-20261118@usahacerdas.test`) masih tersimpan. Dihapus atas persetujuan eksplisit pemilik project.
+- **File:** `docs/CHANGELOG.md`. Skrip sekali pakai dijalankan lalu dihapus, tidak masuk repo.
+- **Isi:** Daftar akun diperiksa dulu (semua berdomain `@usahacerdas.test`; tidak ada akun lain di database). Dalam satu transaksi database: 7 business dihapus (cascade ke rekening, kategori, transaksi, audit log), lalu 7 user.
+- **Pengujian:** Hitung ulang setelah penghapusan: akun uji 0, total user 0. **PASS**.
+- **Catatan:** Database kini kosong. Akun untuk uji UI perlu didaftarkan ulang lewat halaman register; sesi browser lama untuk `uji-ui` sudah tidak valid.
