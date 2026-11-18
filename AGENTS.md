@@ -16,6 +16,7 @@ Berlaku untuk Codex / asisten coding lain yang membaca AGENTS.md. Bahasa komunik
 - Jangan menganggap modal, prive, transfer, atau saldo awal sebagai pendapatan/biaya operasional.
 - Jangan menyimpan password/token di log. Jangan menaruh rahasia pada frontend.
 - Jangan menggunakan floating-point untuk menghitung uang di backend; gunakan Prisma.Decimal.
+- Setiap `z.array()`/`z.set()`/`z.record()` untuk input request wajib diberi batas (`.max(n)`). Zod 3 rentan kehabisan memori pada array tanpa batas (GHSA-mrhx-c7xc-m3w5).
 - Jangan menghapus data pengguna atau menjalankan migrasi destruktif tanpa persetujuan eksplisit.
 - Jangan deploy, menggunakan layanan AI berbayar, atau memodifikasi produksi tanpa izin.
 

@@ -143,3 +143,19 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
 - **Isi:** Daftar akun diperiksa dulu (semua berdomain `@usahacerdas.test`; tidak ada akun lain di database). Dalam satu transaksi database: 7 business dihapus (cascade ke rekening, kategori, transaksi, audit log), lalu 7 user.
 - **Pengujian:** Hitung ulang setelah penghapusan: akun uji 0, total user 0. **PASS**.
 - **Catatan:** Database kini kosong. Akun untuk uji UI perlu didaftarkan ulang lewat halaman register; sesi browser lama untuk `uji-ui` sudah tidak valid.
+
+## 2026-11-19
+
+### Pemeriksaan `npm audit` (16 temuan) dan aturan batas array zod
+- **Tipe:** Keamanan (analisis) + dokumentasi.
+- **Alasan:** `npm ci` melaporkan 16 kerentanan (2 moderate, 14 high) yang belum pernah diperiksa.
+- **Hasil analisis:**
+  - `picomatch` (ReDoS, GHSA-fc5q-39xc-vjpf) serta turunannya `fdir`, `tinyglobby`, `micromatch`, `fast-glob`, `vite`, `@dotenvx/dotenvx`, `@shadcn/registry`, `shadcn`: semua versi terdampak, termasuk 4.0.7 terbaru, jadi belum ada versi tambalan. Hanya dipakai alat build/CLI dengan pola glob dari developer; tidak masuk bundle browser maupun runtime backend.
+  - `minimatch`, `ts-morph`, `@ts-morph/common`: dependensi CLI `shadcn` saja (dev).
+  - `prisma`, `@prisma/config`, `deepmerge-ts` (GHSA-ggr8-5vv4-36mx): hanya CLI Prisma saat membaca konfigurasi; `@prisma/client` runtime tidak terdampak. Tambalan butuh Prisma 7 (versi mayor, migrasi besar).
+  - `zod` (GHSA-mrhx-c7xc-m3w5): satu-satunya yang berjalan di runtime backend. Celahnya hanya pada skema array tanpa batas panjang; backend tidak memakai `z.array`/`z.set`/`z.record` sama sekali dan body JSON dibatasi 100 kB, jadi tidak bisa dieksploitasi saat ini. Tambalan butuh zod 4 (versi mayor).
+  - Saran `npm audit fix --force` (mis. `shadcn@2.10.0`) justru menurunkan versi mayor dan tidak dipakai.
+- **Perubahan:** `npm audit fix` (tanpa `--force`) dijalankan dan tidak mengubah `package-lock.json`. Aturan baru di `AGENTS.md`: setiap skema koleksi zod untuk input request wajib memakai `.max(n)`.
+- **File:** `AGENTS.md`, `docs/CHANGELOG.md`.
+- **Pengujian:** `npm audit` sebelum/sesudah (tetap 16 temuan, sesuai analisis); grep `backend/src` untuk skema koleksi zod (tidak ada). Setelah `npm ci`: `npm run typecheck` **PASS**, `npm test` **38/38 PASS**.
+- **Catatan:** Tindak lanjut opsional: migrasi ke zod 4 dan Prisma 7 sebagai pekerjaan terpisah; pantau rilis tambalan `picomatch`.
