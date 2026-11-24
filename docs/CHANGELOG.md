@@ -195,3 +195,11 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
 - **File:** `ml/src/generate_dataset.py`, `ml/src/train_categorizer.py`, `ml/src/forecast_baseline.py`, `ml/notebooks/01_baseline.ipynb`, `ml/reports/*` (baru), `ml/requirements.txt`, `ml/README.md` (baru), `.gitignore`, `README.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
 - **Pengujian:** Ketiga skrip dijalankan sampai selesai; notebook dieksekusi penuh tanpa error dan angkanya sama dengan keluaran skrip; grafik confusion matrix dan prediksi kas diperiksa visual. Kode aplikasi web tidak berubah, jadi `npm test`/typecheck tidak dijalankan ulang.
 - **Catatan:** Data sintetis, jadi angka belum mencerminkan pemakaian nyata. Kategori Pendapatan Lain dan Lain-lain belum bisa dikenali pada kalimat baru. Model belum terpasang di aplikasi.
+
+### Penghapusan folder eksperimen ML (`ml/`)
+- **Tipe:** Revert / dokumentasi.
+- **Alasan:** Pemilik project mengonfirmasi bahwa tugas kelas hanya meminta penjelasan bagaimana AI menyelesaikan permasalahan, bukan model AI di dalam project. Folder `ml/` (dari entri "Baseline machine learning" di atas) dihapus atas permintaan pemilik project.
+- **Isi:** Semua file `ml/` dihapus dari repo (skrip, notebook, laporan, `requirements.txt`, README ML), begitu juga `ml/.venv`, `ml/data`, dan `ml/models` di komputer lokal. Bagian "Machine learning" di `README.md` dan aturan ML di `.gitignore` dihapus. ADR-007 ditandai dibatalkan. Aplikasi web tidak berubah dan tidak memakai model AI apa pun.
+- **File:** `ml/**` (dihapus), `README.md`, `.gitignore`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
+- **Pengujian:** `git ls-files ml` kosong dan folder `ml/` tidak ada lagi di disk. Kode aplikasi tidak disentuh, jadi tes aplikasi tidak dijalankan ulang.
+- **Catatan:** Kode ML masih bisa dilihat atau dipulihkan dari riwayat git (commit `bee86c5`).

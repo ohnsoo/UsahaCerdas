@@ -13,9 +13,3 @@ frontend/.vite/
 *.tsbuildinfo
 .claude/settings.local.json
 
-# ML (Python)
-ml/.venv/
-ml/data/
-ml/models/
-__pycache__/
-.ipynb_checkpoints/

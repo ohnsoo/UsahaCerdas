@@ -36,7 +36,7 @@
 - **Bukan:** Integrasi bank/QRIS otomatis. Transaksi tetap dicatat manual; yang realtime hanya tampilannya.
 
 ## ADR-007: Eksperimen ML di folder `ml/` dengan Python, data sintetis, dan evaluasi per template (2026-11-24)
-- **Status:** Accepted untuk fase baseline.
+- **Status:** Dibatalkan (2026-11-24). Tugas kelas hanya meminta penjelasan bagaimana AI menyelesaikan masalah, bukan model di dalam project, sehingga folder `ml/` dihapus dan tidak ada model AI di aplikasi. Isi di bawah disimpan sebagai riwayat; kodenya ada di commit `bee86c5`.
 - **Keputusan:** Kode ML ditulis dengan Python (pandas, scikit-learn) di `ml/`, terpisah dari aplikasi Node. Dataset awal sintetis karena data asli aplikasi belum cukup. Kategori mengikuti 6 kategori bawaan aplikasi agar model bisa dipasang ke aplikasi.
 - **Evaluasi:** Kategorisasi dinilai dengan split per template (pola kalimat yang tidak ada di data latih) dan label sebenarnya (`true_category`), sedangkan hiperparameter dipilih dengan GroupKFold di data latih. Split acak tetap dilaporkan sebagai pembanding, tetapi dianggap terlalu optimistis. Prediksi arus kas memakai rolling-origin tanpa kebocoran waktu.
 - **Konsekuensi:** Angka baseline sengaja konservatif. Model belum dipakai di aplikasi; integrasi (saran kategori, peringatan kas menipis) adalah langkah terpisah. `ml/.venv`, `ml/data`, `ml/models` tidak masuk git dan dibuat ulang dari skrip.
