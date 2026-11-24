@@ -178,3 +178,20 @@ Pembaruan wajib setiap perubahan kode; ikuti `AGENTS.md`.
 - **Catatan:**
   - Hanya untuk satu instance backend (ADR-006).
   - Di tab browser lama terlihat beberapa respons 500 dan error WebSocket HMR Vite sebelum pengujian ini; asalnya tidak bisa dipastikan karena log server pengguna tidak terbaca. Dugaan: saat `npm ci` sebelum Prisma client di-generate ulang. Tidak muncul selama pengujian.
+
+## 2026-11-24
+
+### Baseline machine learning: dataset sintetis, kategorisasi transaksi, prediksi arus kas
+- **Tipe:** Fitur (eksperimen ML) + dokumentasi.
+- **Alasan:** Memulai fase Implementation untuk bagian ML project kelas: menyiapkan data, model baseline, dan evaluasi yang jujur sebelum integrasi ke aplikasi.
+- **Isi:**
+  - `ml/src/generate_dataset.py`: 11.778 transaksi sintetis untuk 4 UMKM (1 Mei 2025 sampai 31 Oktober 2026), 64 pola kalimat dengan singkatan/salah ketik, pola arus kas (tren, akhir pekan, gajian, sewa, listrik, gaji), dan 2% label salah dengan label asli disimpan terpisah.
+  - `ml/src/train_categorizer.py`: TF-IDF (kata + karakter) + Logistic Regression dibandingkan dengan DummyClassifier; split acak dan split per template; hiperparameter dipilih dengan GroupKFold di data latih.
+  - `ml/src/forecast_baseline.py`: prediksi arus kas harian 30 hari, rolling-origin 6 titik; naive_mean, seasonal_weekly, dan HistGradientBoosting dengan fitur kalender.
+  - `ml/notebooks/01_baseline.ipynb` menjalankan semuanya dengan output tersimpan; laporan di `ml/reports/`.
+  - Keputusan di ADR-007; panduan di `ml/README.md`.
+- **Hasil:** Kategorisasi macro-F1 0,994 (split acak) dan **0,513** (split per template, akurasi 0,932; dummy 0,148). Prediksi arus kas: error total 30 hari GBM Rp5,89 juta (20% dari rata-rata total) vs naive Rp9,14 juta (31%).
+- **Masalah yang ditemukan dan diperbaiki selama pengerjaan:** (1) pemilihan template uji ikut terpengaruh label salah sehingga data uji lebih besar dari data latih; (2) label salah ikut dinilai sebagai kunci jawaban; (3) `class_weight="balanced"` membuat penjualan sering ditebak sebagai Pendapatan Lain; (4) biaya tetap (sewa/gaji/listrik) sempat mendapat keterangan acak dan tanggal listrik tidak konsisten.
+- **File:** `ml/src/generate_dataset.py`, `ml/src/train_categorizer.py`, `ml/src/forecast_baseline.py`, `ml/notebooks/01_baseline.ipynb`, `ml/reports/*` (baru), `ml/requirements.txt`, `ml/README.md` (baru), `.gitignore`, `README.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
+- **Pengujian:** Ketiga skrip dijalankan sampai selesai; notebook dieksekusi penuh tanpa error dan angkanya sama dengan keluaran skrip; grafik confusion matrix dan prediksi kas diperiksa visual. Kode aplikasi web tidak berubah, jadi `npm test`/typecheck tidak dijalankan ulang.
+- **Catatan:** Data sintetis, jadi angka belum mencerminkan pemakaian nyata. Kategori Pendapatan Lain dan Lain-lain belum bisa dikenali pada kalimat baru. Model belum terpasang di aplikasi.

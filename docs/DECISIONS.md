@@ -34,3 +34,9 @@
 - **Alasan:** Supabase Realtime tidak dipakai karena autentikasi memakai JWT sendiri, bukan Supabase Auth, sehingga RLS tidak bisa membatasi data per pemilik; membuka tabel lewat anon key berisiko membocorkan data usaha lain. SSE cukup untuk arah server ke klien, tanpa dependensi baru, dan lewat cookie sesi yang sama.
 - **Batasan:** Daftar koneksi disimpan di memori proses, jadi hanya berlaku untuk satu instance backend. Bila backend di-scale ke beberapa instance, perlu pub/sub bersama (mis. Postgres LISTEN/NOTIFY atau Redis). Reverse proxy di production harus tidak mem-buffer respons `text/event-stream`.
 - **Bukan:** Integrasi bank/QRIS otomatis. Transaksi tetap dicatat manual; yang realtime hanya tampilannya.
+
+## ADR-007: Eksperimen ML di folder `ml/` dengan Python, data sintetis, dan evaluasi per template (2026-11-24)
+- **Status:** Accepted untuk fase baseline.
+- **Keputusan:** Kode ML ditulis dengan Python (pandas, scikit-learn) di `ml/`, terpisah dari aplikasi Node. Dataset awal sintetis karena data asli aplikasi belum cukup. Kategori mengikuti 6 kategori bawaan aplikasi agar model bisa dipasang ke aplikasi.
+- **Evaluasi:** Kategorisasi dinilai dengan split per template (pola kalimat yang tidak ada di data latih) dan label sebenarnya (`true_category`), sedangkan hiperparameter dipilih dengan GroupKFold di data latih. Split acak tetap dilaporkan sebagai pembanding, tetapi dianggap terlalu optimistis. Prediksi arus kas memakai rolling-origin tanpa kebocoran waktu.
+- **Konsekuensi:** Angka baseline sengaja konservatif. Model belum dipakai di aplikasi; integrasi (saran kategori, peringatan kas menipis) adalah langkah terpisah. `ml/.venv`, `ml/data`, `ml/models` tidak masuk git dan dibuat ulang dari skrip.

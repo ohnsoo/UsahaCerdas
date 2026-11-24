@@ -1,0 +1,633 @@
+{
+  "origins": [
+    "2026-05-05",
+    "2026-06-04",
+    "2026-07-04",
+    "2026-08-03",
+    "2026-09-02",
+    "2026-10-02"
+  ],
+  "horizon_days": 30,
+  "mean_abs_daily_net": 1125794.1712204008,
+  "summary": [
+    {
+      "method": "gbm_calendar",
+      "mae_daily": 968699.0,
+      "abs_err_30d_total": 5885371.0
+    },
+    {
+      "method": "naive_mean",
+      "mae_daily": 1023587.0,
+      "abs_err_30d_total": 9135688.0
+    },
+    {
+      "method": "seasonal_weekly",
+      "mae_daily": 1138629.0,
+      "abs_err_30d_total": 9149203.0
+    }
+  ],
+  "per_business_mae_daily": [
+    {
+      "business_id": "biz-fashion",
+      "gbm_calendar": 1166071.0,
+      "naive_mean": 1185219.0,
+      "seasonal_weekly": 1302115.0
+    },
+    {
+      "business_id": "biz-kelontong",
+      "gbm_calendar": 1289519.0,
+      "naive_mean": 1273878.0,
+      "seasonal_weekly": 1366313.0
+    },
+    {
+      "business_id": "biz-kuliner",
+      "gbm_calendar": 911276.0,
+      "naive_mean": 990429.0,
+      "seasonal_weekly": 1118697.0
+    },
+    {
+      "business_id": "biz-laundry",
+      "gbm_calendar": 507929.0,
+      "naive_mean": 644822.0,
+      "seasonal_weekly": 767392.0
+    }
+  ],
+  "folds": [
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1295304.761904762,
+      "abs_err_30d_total": 11657321.42857144,
+      "actual_30d_total": 30782500.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1361316.6666666667,
+      "abs_err_30d_total": 11563500.0,
+      "actual_30d_total": 30782500.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1075474.4754077077,
+      "abs_err_30d_total": 1467339.1453841627,
+      "actual_30d_total": 30782500.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1147033.3333333333,
+      "abs_err_30d_total": 9635571.42857144,
+      "actual_30d_total": 51672000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1242512.5,
+      "abs_err_30d_total": 9941625.0,
+      "actual_30d_total": 51672000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1054822.119998193,
+      "abs_err_30d_total": 12230813.439208686,
+      "actual_30d_total": 51672000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 801754.7619047617,
+      "abs_err_30d_total": 6207928.571428578,
+      "actual_30d_total": 14101000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 993208.3333333334,
+      "abs_err_30d_total": 5079250.0,
+      "actual_30d_total": 14101000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 932118.1866844378,
+      "abs_err_30d_total": 9981767.193553068,
+      "actual_30d_total": 14101000.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 633725.0,
+      "abs_err_30d_total": 8610892.857142858,
+      "actual_30d_total": 7122500.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 808516.6666666666,
+      "abs_err_30d_total": 8284000.0,
+      "actual_30d_total": 7122500.0
+    },
+    {
+      "origin": "2026-05-05",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 543602.2657734861,
+      "abs_err_30d_total": 4455216.721457569,
+      "actual_30d_total": 7122500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1120564.285714286,
+      "abs_err_30d_total": 9068642.857142862,
+      "actual_30d_total": 23356000.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1068945.8333333333,
+      "abs_err_30d_total": 7951125.0,
+      "actual_30d_total": 23356000.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1228786.5540439554,
+      "abs_err_30d_total": 10267050.81824448,
+      "actual_30d_total": 23356000.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1390992.8571428575,
+      "abs_err_30d_total": 17836571.42857144,
+      "actual_30d_total": 34604500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1518458.3333333333,
+      "abs_err_30d_total": 18375000.0,
+      "actual_30d_total": 34604500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1231384.6699140975,
+      "abs_err_30d_total": 6533160.788434148,
+      "actual_30d_total": 34604500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 980957.142857143,
+      "abs_err_30d_total": 13976535.714285709,
+      "actual_30d_total": 26088500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 1119412.5,
+      "abs_err_30d_total": 14189125.0,
+      "actual_30d_total": 26088500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 849677.6123855158,
+      "abs_err_30d_total": 8456392.869902596,
+      "actual_30d_total": 26088500.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 580723.8095238096,
+      "abs_err_30d_total": 11144142.857142854,
+      "actual_30d_total": 17082000.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 733216.6666666666,
+      "abs_err_30d_total": 11715250.0,
+      "actual_30d_total": 17082000.0
+    },
+    {
+      "origin": "2026-06-04",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 509598.65867425594,
+      "abs_err_30d_total": 3740740.7721933518,
+      "actual_30d_total": 17082000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1130228.5714285714,
+      "abs_err_30d_total": 15739285.71428572,
+      "actual_30d_total": 40575000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1295783.3333333333,
+      "abs_err_30d_total": 16923750.0,
+      "actual_30d_total": 40575000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1084422.5479704123,
+      "abs_err_30d_total": 4802082.20588436,
+      "actual_30d_total": 40575000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1170670.238095238,
+      "abs_err_30d_total": 17504321.428571418,
+      "actual_30d_total": 51512000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1273133.3333333333,
+      "abs_err_30d_total": 18636250.0,
+      "actual_30d_total": 51512000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1448719.6822955464,
+      "abs_err_30d_total": 9573906.2982663,
+      "actual_30d_total": 51512000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 900469.0476190477,
+      "abs_err_30d_total": 3748071.428571418,
+      "actual_30d_total": 21933000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 879829.1666666666,
+      "abs_err_30d_total": 3055625.0,
+      "actual_30d_total": 21933000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 855327.7526496204,
+      "abs_err_30d_total": 677970.6970656067,
+      "actual_30d_total": 21933000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 688890.4761904762,
+      "abs_err_30d_total": 11365142.857142858,
+      "actual_30d_total": 5827000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 753908.3333333334,
+      "abs_err_30d_total": 11258250.0,
+      "actual_30d_total": 5827000.0
+    },
+    {
+      "origin": "2026-07-04",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 419003.5511891886,
+      "abs_err_30d_total": 5203833.415108038,
+      "actual_30d_total": 5827000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1268938.0952380954,
+      "abs_err_30d_total": 2320142.8571428508,
+      "actual_30d_total": 39690500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1506291.6666666667,
+      "abs_err_30d_total": 3456500.0,
+      "actual_30d_total": 39690500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1251403.4129019917,
+      "abs_err_30d_total": 8232686.248682667,
+      "actual_30d_total": 39690500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1138244.0476190478,
+      "abs_err_30d_total": 1133821.4285714403,
+      "actual_30d_total": 49969000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1159129.1666666667,
+      "abs_err_30d_total": 278875.0,
+      "actual_30d_total": 49969000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1225958.8586610442,
+      "abs_err_30d_total": 10562889.431434266,
+      "actual_30d_total": 49969000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 1162516.6666666667,
+      "abs_err_30d_total": 10869857.142857142,
+      "actual_30d_total": 33814500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 1257233.3333333333,
+      "abs_err_30d_total": 11932500.0,
+      "actual_30d_total": 33814500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 1021864.2389484405,
+      "abs_err_30d_total": 11368512.939293966,
+      "actual_30d_total": 33814500.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 692147.619047619,
+      "abs_err_30d_total": 6512142.8571428545,
+      "actual_30d_total": 12810000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 685383.3333333334,
+      "abs_err_30d_total": 7212750.0,
+      "actual_30d_total": 12810000.0
+    },
+    {
+      "origin": "2026-08-03",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 516541.30344760517,
+      "abs_err_30d_total": 2295581.7079191934,
+      "actual_30d_total": 12810000.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1074296.4285714286,
+      "abs_err_30d_total": 2723607.142857142,
+      "actual_30d_total": 32325500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1223079.1666666667,
+      "abs_err_30d_total": 3406625.0,
+      "actual_30d_total": 32325500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1156814.1275929576,
+      "abs_err_30d_total": 1149057.218023289,
+      "actual_30d_total": 32325500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1344314.285714286,
+      "abs_err_30d_total": 5942607.142857164,
+      "actual_30d_total": 46019000.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1480445.8333333333,
+      "abs_err_30d_total": 5275625.0,
+      "actual_30d_total": 46019000.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1355583.9863435137,
+      "abs_err_30d_total": 3215700.5885140523,
+      "actual_30d_total": 46019000.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 975851.1904761903,
+      "abs_err_30d_total": 11789607.142857142,
+      "actual_30d_total": 22929500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 1419316.6666666667,
+      "abs_err_30d_total": 12141000.0,
+      "actual_30d_total": 22929500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 789128.8800944366,
+      "abs_err_30d_total": 2056314.9561341852,
+      "actual_30d_total": 22929500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 648888.0952380953,
+      "abs_err_30d_total": 3196035.714285709,
+      "actual_30d_total": 8369500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 742087.5,
+      "abs_err_30d_total": 4043375.0,
+      "actual_30d_total": 8369500.0
+    },
+    {
+      "origin": "2026-09-02",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 572165.6978390369,
+      "abs_err_30d_total": 3815417.734355552,
+      "actual_30d_total": 8369500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-fashion",
+      "method": "naive_mean",
+      "mae_daily": 1221983.3333333328,
+      "abs_err_30d_total": 12892607.142857142,
+      "actual_30d_total": 46468500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-fashion",
+      "method": "seasonal_weekly",
+      "mae_daily": 1357270.8333333333,
+      "abs_err_30d_total": 12290625.0,
+      "actual_30d_total": 46468500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-fashion",
+      "method": "gbm_calendar",
+      "mae_daily": 1199526.4881278563,
+      "abs_err_30d_total": 8761540.707328528,
+      "actual_30d_total": 46468500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kelontong",
+      "method": "naive_mean",
+      "mae_daily": 1452011.9047619044,
+      "abs_err_30d_total": 9107714.285714284,
+      "actual_30d_total": 38085500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kelontong",
+      "method": "seasonal_weekly",
+      "mae_daily": 1524200.0,
+      "abs_err_30d_total": 8292250.0,
+      "actual_30d_total": 38085500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kelontong",
+      "method": "gbm_calendar",
+      "mae_daily": 1420645.5228549573,
+      "abs_err_30d_total": 2396137.8463649005,
+      "actual_30d_total": 38085500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kuliner",
+      "method": "naive_mean",
+      "mae_daily": 1121026.1904761905,
+      "abs_err_30d_total": 10015642.857142858,
+      "actual_30d_total": 34748500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kuliner",
+      "method": "seasonal_weekly",
+      "mae_daily": 1043179.1666666666,
+      "abs_err_30d_total": 9387625.0,
+      "actual_30d_total": 34748500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-kuliner",
+      "method": "gbm_calendar",
+      "mae_daily": 1019538.1663525773,
+      "abs_err_30d_total": 7767269.849037282,
+      "actual_30d_total": 34748500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-laundry",
+      "method": "naive_mean",
+      "mae_daily": 624554.7619047619,
+      "abs_err_30d_total": 6258285.714285715,
+      "actual_30d_total": 12606500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-laundry",
+      "method": "seasonal_weekly",
+      "mae_daily": 881237.5,
+      "abs_err_30d_total": 4890375.0,
+      "actual_30d_total": 12606500.0
+    },
+    {
+      "origin": "2026-10-02",
+      "business_id": "biz-laundry",
+      "method": "gbm_calendar",
+      "mae_daily": 486660.3747612698,
+      "abs_err_30d_total": 2237521.61950803,
+      "actual_30d_total": 12606500.0
+    }
+  ]
+}

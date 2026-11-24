@@ -35,6 +35,10 @@ Jika port 5432 sudah dipakai PostgreSQL lain, ubah port host pada `docker-compos
 
 Install PostgreSQL, buat database `usahacerdas`, lalu atur koneksi di `backend/.env`. Perintah lainnya sama.
 
+## Machine learning
+
+Eksperimen ML (kategorisasi transaksi otomatis dan prediksi arus kas) ada di folder `ml/`, terpisah dari aplikasi web. Panduan, dataset, dan hasil baseline: [`ml/README.md`](ml/README.md); notebook: `ml/notebooks/01_baseline.ipynb`.
+
 ## Realtime antar perangkat
 
 Perubahan transaksi, rekening, kategori, dan profil usaha langsung tampil di tab atau perangkat lain yang login ke usaha yang sama, tanpa refresh. Mekanismenya Server-Sent Events dari backend (`/api/events`); indikator "Tersinkron" ada di kanan atas. Detail di ADR-006 dan `docs/API.md`.

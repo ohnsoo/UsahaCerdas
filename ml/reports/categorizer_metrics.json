@@ -1,0 +1,214 @@
+{
+  "dataset": {
+    "rows": 11778,
+    "class_counts": {
+      "Penjualan": 8612,
+      "Transportasi": 1249,
+      "Bahan Baku": 1158,
+      "Operasional": 420,
+      "Pendapatan Lain": 248,
+      "Lain-lain": 91
+    }
+  },
+  "random_split": {
+    "n_train": 9422,
+    "n_test": 2356,
+    "dummy": {
+      "accuracy": 0.7457555178268251,
+      "macro_f1": 0.1423940351730286
+    },
+    "chosen_params": {
+      "clf__C": 1.0,
+      "clf__class_weight": null
+    },
+    "cv_macro_f1": 0.42617533672217955,
+    "tfidf_logreg": {
+      "accuracy": 0.9995755517826825,
+      "macro_f1": 0.9942054577263288,
+      "per_class": {
+        "Bahan Baku": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 234.0
+        },
+        "Lain-lain": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 15.0
+        },
+        "Operasional": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 82.0
+        },
+        "Pendapatan Lain": {
+          "precision": 1.0,
+          "recall": 0.9333333333333333,
+          "f1-score": 0.9655172413793104,
+          "support": 15.0
+        },
+        "Penjualan": {
+          "precision": 0.9994311717861206,
+          "recall": 1.0,
+          "f1-score": 0.9997155049786629,
+          "support": 1757.0
+        },
+        "Transportasi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 253.0
+        },
+        "accuracy": 0.9995755517826825,
+        "macro avg": {
+          "precision": 0.9999051952976868,
+          "recall": 0.9888888888888889,
+          "f1-score": 0.9942054577263288,
+          "support": 2356.0
+        },
+        "weighted avg": {
+          "precision": 0.9995757932208039,
+          "recall": 0.9995755517826825,
+          "f1-score": 0.9995682940866725,
+          "support": 2356.0
+        }
+      }
+    },
+    "sample_errors": [
+      {
+        "note": "jual mesin cuci bekas",
+        "true_category": "Pendapatan Lain",
+        "pred": "Penjualan"
+      }
+    ]
+  },
+  "template_split": {
+    "n_train": 8979,
+    "n_test": 2799,
+    "dummy": {
+      "accuracy": 0.7942122186495176,
+      "macro_f1": 0.14755077658303464
+    },
+    "chosen_params": {
+      "clf__C": 5.0,
+      "clf__class_weight": null
+    },
+    "cv_macro_f1": 0.35866244777251177,
+    "tfidf_logreg": {
+      "accuracy": 0.9317613433369061,
+      "macro_f1": 0.5125110700717804,
+      "per_class": {
+        "Bahan Baku": {
+          "precision": 0.6892307692307692,
+          "recall": 0.9613733905579399,
+          "f1-score": 0.8028673835125448,
+          "support": 233.0
+        },
+        "Lain-lain": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 15.0
+        },
+        "Operasional": {
+          "precision": 0.5822784810126582,
+          "recall": 0.7540983606557377,
+          "f1-score": 0.6571428571428571,
+          "support": 61.0
+        },
+        "Pendapatan Lain": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 13.0
+        },
+        "Penjualan": {
+          "precision": 0.9941625505163898,
+          "recall": 0.9959514170040485,
+          "f1-score": 0.9950561797752809,
+          "support": 2223.0
+        },
+        "Transportasi": {
+          "precision": 0.8493150684931506,
+          "recall": 0.4881889763779528,
+          "f1-score": 0.62,
+          "support": 254.0
+        },
+        "accuracy": 0.9317613433369061,
+        "macro avg": {
+          "precision": 0.5191644782088279,
+          "recall": 0.5332686907659464,
+          "f1-score": 0.5125110700717804,
+          "support": 2799.0
+        },
+        "weighted avg": {
+          "precision": 0.9367128023464579,
+          "recall": 0.9317613433369061,
+          "f1-score": 0.9277040736993879,
+          "support": 2799.0
+        }
+      }
+    },
+    "sample_errors": [
+      {
+        "note": "perbaikan atap bocor (cash)",
+        "true_category": "Lain-lain",
+        "pred": "Operasional"
+      },
+      {
+        "note": "ongkir pos kirim gas elpiji",
+        "true_category": "Transportasi",
+        "pred": "Bahan Baku"
+      },
+      {
+        "note": "bunga tabungan bank",
+        "true_category": "Pendapatan Lain",
+        "pred": "Penjualan"
+      },
+      {
+        "note": "Ongkir gosend kirim minyak goreng",
+        "true_category": "Transportasi",
+        "pred": "Pendapatan Lain"
+      },
+      {
+        "note": "ONGKIR SICEPAT KIRIM ROKOK",
+        "true_category": "Transportasi",
+        "pred": "Bahan Baku"
+      },
+      {
+        "note": "transfer dari pelanggan Pak Budi untuk tunik",
+        "true_category": "Penjualan",
+        "pred": "Lain-lain"
+      },
+      {
+        "note": "transefr dari pelanggan Pak Budi untuk tunik",
+        "true_category": "Penjualan",
+        "pred": "Lain-lain"
+      },
+      {
+        "note": "ongkir pos kirim kaos oversize",
+        "true_category": "Transportasi",
+        "pred": "Pendapatan Lain"
+      }
+    ],
+    "held_out_templates": [
+      "Bahan Baku#0",
+      "Bahan Baku#1",
+      "Lain-lain#3",
+      "Lain-lain#4",
+      "Operasional#1",
+      "Operasional#10",
+      "Operasional#11",
+      "Pendapatan Lain#1",
+      "Pendapatan Lain#8",
+      "Penjualan#0",
+      "Penjualan#4",
+      "Penjualan#7",
+      "Transportasi#0",
+      "Transportasi#1"
+    ]
+  }
+}
